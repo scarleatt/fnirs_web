@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= title %></title>
+    <style type="text/css">
+        * {
+            font-family: '微软雅黑';
+        }
+        .current {
+            height: 100%;
+            width: 0;
+            background-color: #0A74DA;
+            border-radius: 3px;
+        }
+        .progress-bar {
+            width: 750px;
+            height: 25px;
+            border-radius: 3px;
+            border: 1px solid #A3A3A3;
+        }
+    </style>
+</head>
+<body>
+    <!-- <form method="post" enctype="multipart/form-data" action="/upload">
+        <input type="file" name="file">
+        <input type="submit" name="upload" id="btn_upload">
+    </form> -->
+    <p>
+        请选择一个文件：
+        <input type="file" id="file" />
+    </p>
+    
+    <p>
+        <button id="start">上传文件</button>
+        <button id="pause">暂停</button>
+        <p class="help-block"></p>
+    </p>
+
+    <div class="progress-bar">
+        <div class="current"></div>
+    </div>
+
+   
+</body>
+<script src="javascripts/main.js"></script>
+</html>
