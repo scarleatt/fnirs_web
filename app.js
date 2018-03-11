@@ -4,9 +4,11 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var path = require('path');
+var formidable = require('formidable');
+var fs = require('fs');
 
 var index = require('./routes/index');
-var users = require('./routes/upload');
 var upload = require('./routes/upload');
 
 var app = express();
@@ -24,8 +26,30 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
-app.use('/upload', upload);
+app.post('/upload', function(req, res){
+    var form = new formidable.IncomingForm();
+    form.multiples = true;
+    form.uploadDir = path.join(__dirname, '/upload');
+
+    // every time a file has been uploaded successfully,
+    // rename it to it's orignal name
+    form.on('file', function(field, file) {
+        fs.rename(file.path, path.join(form.uploadDir, file.name));
+    });
+
+    // log any errors that occur
+    form.on('error', function(err) {
+        console.log('An error has occured: \n' + err);
+    });
+
+    // once all the files have been uploaded, send a response to the client
+    form.on('end', function() {
+        res.end('success');
+    });
+
+    // parse the incoming request containing the form data
+    form.parse(req);
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

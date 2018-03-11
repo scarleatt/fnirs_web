@@ -64,7 +64,7 @@
             }
         }
 
-        xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xhr.setRequestHeader("Content-type","multipart/form-data");
 
         var  a = formData.getAll('fileName')[0];
         var  b = formData.getAll('filePart')[0];
@@ -74,39 +74,6 @@
     if (typeof FileReader == 'undefined') {
         alert('err');
         file.setAttribute('disabled', 'disabled');
-    }
-
-    function readAsDataURL () {
-        var file = document.getElementById('file').files[0];
-
-        if(!/image\/\w+/.test(file.type)){  
-            alert("只加载图片");  
-            return false;  
-        }  
-
-        var reader = new FileReader();
-        //将图片以data url形式读入页面
-        reader.readAsDataURL(file);
-        reader.onload = function (e) {
-            var resultURL = e.target.result;
-
-            var image = new Image();
-            image.src = resultURL;
-            image.onload  = function () {
-                 var canvas = document.createElement('canvas');
-                 var scale = 0.5;
-                 
-                 canvas.width = this.width*scale;
-                 canvas.height = this.height*scale;
-
-                 var ctx = canvas.getContext('2d');
-                 ctx.drawImage(this, 0, 0, this.width, this.height);
-
-                 var newImageData = canvas.toDataURL(file.type, 0.5);  
-                 result.innerHTML = '<img src="' + newImageData + '" />';
-
-            }
-        }
     }
 
 })();
