@@ -29,7 +29,8 @@ app.post('/upload', function(req, res){
   var form = new formidable.IncomingForm();
   var name='default filename';
   var fileType='default filetype';
-  
+  var dstDir = path.join(__dirname, '/upload');
+
   form.keepExtensions = true;
   form.maxFileSize = 20 * 1024 * 1024;
   form.multiples = true;
@@ -47,7 +48,7 @@ app.post('/upload', function(req, res){
 
   form.on('end', function() {
     if (fileType=='text/csv') {
-      exec('python ./command/run.py '+' '+name+' ',function(error,stdout,stderr){
+      exec('python ./command/run.py '+' '+dstDir+'/'+name+' ',function(error,stdout,stderr){
           if(stdout.length = 1){
             console.log('python ./command/run.py ',name, ' finished !');
             console.log('The result is ', stdout);
