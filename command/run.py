@@ -1,7 +1,8 @@
 from numpy import *
 import csv
+import sys
 list_file=[];
-filename ="C:\\Users\\zhangwenjum\\Documents\\Tencent Files\\2780898229\\FileRecv\\MBLL\\1.csv"
+filename = sys.argv[1]
 with open(filename) as f:
     reader=csv.reader(f)
     for one_line in reader:
@@ -22,7 +23,7 @@ while i+5<=469:
     i+=1
 meanData2=array(meanData2,dtype=float64)
 meanData2.shape
-plt.plot(time[5:5+meanData2.shape[0]],meanData2)
+# plt.plot(time[5:5+meanData2.shape[0]],meanData2)
 threshold=0.0005
 i=5
 while meanData2[i]<threshold:
