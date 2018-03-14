@@ -21,8 +21,9 @@ $('#upload-input').on('change', function(){
             data: formData,
             processData: false,
             contentType: false,
-            success: function(data){
-              console.log('upload successful!\n' + data);
+            success: function(res){
+                console.log('upload successful!\n');
+                console.log(res);
             },
             xhr: function() {
                 var xhr = new XMLHttpRequest();

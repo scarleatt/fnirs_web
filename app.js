@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var formidable = require('formidable');
 var fs = require('fs');
+var exec = require('child_process').exec; 
 
 var index = require('./routes/index');
 var upload = require('./routes/upload');
@@ -20,34 +21,56 @@ app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(bodyParser.json({limit: '20mb'}));
+app.use(bodyParser.urlencoded({limit: '20mb', extended: true}));
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.post('/upload', function(req, res){
     var form = new formidable.IncomingForm();
+    form.keepExtensions = true;
+    form.maxFileSize = 20 * 1024 * 1024;
     form.multiples = true;
     form.uploadDir = path.join(__dirname, '/upload');
 
-    // every time a file has been uploaded successfully,
-    // rename it to it's orignal name
+    var name='default filename';
+    var fileType='default filetype';
+
     form.on('file', function(field, file) {
-        fs.rename(file.path, path.join(form.uploadDir, file.name));
+      name=file.name.replace(/ /g, ''); 
+      fileType=file.type;
+      fs.rename(file.path, path.join(form.uploadDir, name));
     });
 
-    // log any errors that occur
     form.on('error', function(err) {
         console.log('An error has occured: \n' + err);
     });
 
-    // once all the files have been uploaded, send a response to the client
     form.on('end', function() {
-        res.end('success');
+      if (fileType=='text/csv') {
+        exec('python ./command/run.py '+' '+name+' ',function(error,stdout,stderr){
+            if(stdout.length = 1){
+              console.log('python ./command/run.py ',name, ' finished !');
+              console.log('The result is ', stdout);
+              res.end(stdout);
+            } 
+            if(error) {
+                console.info('stderr : '+stderr);
+                res.end('stderr');
+            }
+        });  
+        //res.end('success');
+      } else {
+        console.log('Please input correct data file');
+        res.end('Please input correct data file');
+      }
     });
 
-    // parse the incoming request containing the form data
     form.parse(req);
 });
 
