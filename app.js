@@ -18,60 +18,54 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: false }));
-
 app.use(bodyParser.json({limit: '20mb'}));
 app.use(bodyParser.urlencoded({limit: '20mb', extended: true}));
-
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.post('/upload', function(req, res){
-    var form = new formidable.IncomingForm();
-    form.keepExtensions = true;
-    form.maxFileSize = 20 * 1024 * 1024;
-    form.multiples = true;
-    form.uploadDir = path.join(__dirname, '/upload');
+  var form = new formidable.IncomingForm();
+  var name='default filename';
+  var fileType='default filetype';
+  
+  form.keepExtensions = true;
+  form.maxFileSize = 20 * 1024 * 1024;
+  form.multiples = true;
+  form.uploadDir = path.join(__dirname, '/upload');
 
-    var name='default filename';
-    var fileType='default filetype';
+  form.on('file', function(field, file) {
+    name=file.name.replace(/ /g, ''); 
+    fileType=file.type;
+    fs.rename(file.path, path.join(form.uploadDir, name));
+  });
 
-    form.on('file', function(field, file) {
-      name=file.name.replace(/ /g, ''); 
-      fileType=file.type;
-      fs.rename(file.path, path.join(form.uploadDir, name));
-    });
+  form.on('error', function(err) {
+      console.log('An error has occured: \n' + err);
+  });
 
-    form.on('error', function(err) {
-        console.log('An error has occured: \n' + err);
-    });
+  form.on('end', function() {
+    if (fileType=='text/csv') {
+      exec('python ./command/run.py '+' '+name+' ',function(error,stdout,stderr){
+          if(stdout.length = 1){
+            console.log('python ./command/run.py ',name, ' finished !');
+            console.log('The result is ', stdout);
+            res.end(stdout);
+          } 
+          if(error) {
+            console.info('stderr : '+stderr);
+            res.end('stderr');
+          }
+      });  
+      //res.end('success');
+    } else {
+      console.log('Please input correct data file');
+      res.end('Please input correct data file');
+    }
+  });
 
-    form.on('end', function() {
-      if (fileType=='text/csv') {
-        exec('python ./command/run.py '+' '+name+' ',function(error,stdout,stderr){
-            if(stdout.length = 1){
-              console.log('python ./command/run.py ',name, ' finished !');
-              console.log('The result is ', stdout);
-              res.end(stdout);
-            } 
-            if(error) {
-                console.info('stderr : '+stderr);
-                res.end('stderr');
-            }
-        });  
-        //res.end('success');
-      } else {
-        console.log('Please input correct data file');
-        res.end('Please input correct data file');
-      }
-    });
-
-    form.parse(req);
+  form.parse(req);
 });
 
 // catch 404 and forward to error handler
