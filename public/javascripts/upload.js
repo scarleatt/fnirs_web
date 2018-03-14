@@ -24,7 +24,7 @@ $('#upload-input').on('change', function(){
             success: function(res){
                 console.log('upload successful!\n');
                 console.log(res);
-                alert(res);
+                alert('跳跃时间为 ' + res*100+ 'ms');
             },
             xhr: function() {
                 var xhr = new XMLHttpRequest();
